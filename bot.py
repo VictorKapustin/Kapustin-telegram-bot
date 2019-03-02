@@ -2,6 +2,7 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import logging
 from settings import PROXY, key_bot
 from ephem import Mars, Venus, Jupiter, Mercury, Neptune, Uranus, Saturn, Pluto, constellation
+from ephem import next_full_moon as nfm
 import datetime
 import re
 import time
@@ -58,6 +59,9 @@ def wordcount(bot, update):
         return  
     update.message.reply_text('{} слова'.format(len(text)))
 
+def next_full_moon(bot, update):
+    update.message.reply_text('Следующая полная луна будет {}'.format(nfm(dt))) # TODO format time
+
 
 def main():
     mybot = Updater(key_bot, request_kwargs=PROXY)
@@ -68,6 +72,7 @@ def main():
     dp.add_handler(MessageHandler(Filters.text, talk_to_me)) # Filters.text тип сообщения, talk_to_me функция
     dp.add_handler(CommandHandler('planet', planet)) # при получении команды 'planet' вызвать функцию planet
     dp.add_handler(CommandHandler('wordcount', wordcount)) 
+    dp.add_handler(CommandHandler('next_full_moon', next_full_moon))
     mybot.start_polling()  # бот, начни запрашивать
     mybot.idle()  # работать бесконечно, пока не остановят
 
