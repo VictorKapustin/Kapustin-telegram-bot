@@ -2,8 +2,9 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import logging
 from settings import PROXY, key_bot
 from ephem import Mars, Venus, Jupiter, Mercury, Neptune, Uranus, Saturn, Pluto, constellation
-import datetime 
-
+import datetime
+import re
+import time
 dt = datetime.date.today()
 planets_today = {'Mars': Mars(dt),
                  'Venus': Venus(dt),
@@ -49,6 +50,14 @@ def talk_to_me(bot, update):
     logging.info(user_text)
     update.message.reply_text(user_text)  # ответить текстом пользователя
 
+def wordcount(bot, update):
+    text = re.sub(r'[^a-zA-Zа-яА-Я ]',r'', update.message.text).split()[1:] 
+    #  В полученной строке оставляем только символы a-zA-Zа-яА-Я и пробелы, дальше делим по пробелам
+    if text == []:
+        update.message.reply_text('Вы ввели пустое сообщение')
+        return  
+    update.message.reply_text('{} слова'.format(len(text)))
+
 
 def main():
     mybot = Updater(key_bot, request_kwargs=PROXY)
@@ -58,6 +67,7 @@ def main():
     dp.add_handler(CommandHandler('start', greet_user)) # при получении команды 'start' вызвать функцию greet_user 
     dp.add_handler(MessageHandler(Filters.text, talk_to_me)) # Filters.text тип сообщения, talk_to_me функция
     dp.add_handler(CommandHandler('planet', planet)) # при получении команды 'planet' вызвать функцию planet
+    dp.add_handler(CommandHandler('wordcount', wordcount)) 
     mybot.start_polling()  # бот, начни запрашивать
     mybot.idle()  # работать бесконечно, пока не остановят
 

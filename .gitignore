@@ -3,3 +3,6 @@
 settings.py
 constellation.py
 __pycache__
+test.py
+update.py
+.gitignore
