@@ -6,6 +6,7 @@ from ephem import next_full_moon as nfm
 import datetime
 import re
 import time
+from russian_cities import russian_cities
 dt = datetime.date.today()
 planets_today = {'Mars': Mars(dt),
                  'Venus': Venus(dt),
@@ -62,7 +63,30 @@ def wordcount(bot, update):
 def next_full_moon(bot, update):
     update.message.reply_text('Следующая полная луна будет {}'.format(nfm(dt))) # TODO format time
 
-
+def cities(bot, update): #TODO сделать игру без запросов каждый раз
+    logging.info('Игра в города запущена')
+    mybot = Updater(key_bot, request_kwargs=PROXY)
+    dp = mybot.dispatcher # CommandHandler обрабатывает команды 
+    update.message.reply_text('Пожалуйста введите название города с большой буквы,' 
+        ' в игре участвуют города с населением более 100k. Пример: Москва')
+    dp.add_handler(MessageHandler(Filters.text, city)) # Filters.text тип сообщения, talk_to_me функция    
+    if update.message.text in russian_cities:
+        city(bot, update)
+    def city(bot, update):
+        your_city = update.message.text
+        russian_cities.remove(your_city)
+        for city in russian_cities:
+            if city[0].lower()==your_city[-1]:    
+                update.message.reply_text(city)
+                russian_cities.remove(city)
+                letter = city[-1]
+                if city[-1] in 'ъьый':
+                    letter = city[-2]
+                update.message.reply_text(f'Вам на "{letter.upper()}""')
+                break
+    
+    mybot.start_polling()  # бот, начни запрашивать
+    mybot.idle()  # работать бесконечно, пока не остановят
 def main():
     mybot = Updater(key_bot, request_kwargs=PROXY)
     logging.info('Бот запускается')
@@ -73,6 +97,7 @@ def main():
     dp.add_handler(CommandHandler('planet', planet)) # при получении команды 'planet' вызвать функцию planet
     dp.add_handler(CommandHandler('wordcount', wordcount)) 
     dp.add_handler(CommandHandler('next_full_moon', next_full_moon))
+    dp.add_handler(CommandHandler('cities', cities))
     mybot.start_polling()  # бот, начни запрашивать
     mybot.idle()  # работать бесконечно, пока не остановят
 
