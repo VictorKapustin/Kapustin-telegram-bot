@@ -63,30 +63,30 @@ def wordcount(bot, update):
 def next_full_moon(bot, update):
     update.message.reply_text('Следующая полная луна будет {}'.format(nfm(dt))) # TODO format time
 
-def cities(bot, update): #TODO сделать игру без запросов каждый раз
-    logging.info('Игра в города запущена')
-    mybot = Updater(key_bot, request_kwargs=PROXY)
-    dp = mybot.dispatcher # CommandHandler обрабатывает команды 
+def cities(bot, update): #TODO сделать игру без запросов команды каждый раз
+    logging.info('Игра в города запущена') 
     update.message.reply_text('Пожалуйста введите название города с большой буквы,' 
         ' в игре участвуют города с населением более 100k. Пример: Москва')
-    dp.add_handler(MessageHandler(Filters.text, city)) # Filters.text тип сообщения, talk_to_me функция    
-    if update.message.text in russian_cities:
-        city(bot, update)
-    def city(bot, update):
-        your_city = update.message.text
-        russian_cities.remove(your_city)
-        for city in russian_cities:
-            if city[0].lower()==your_city[-1]:    
-                update.message.reply_text(city)
-                russian_cities.remove(city)
-                letter = city[-1]
-                if city[-1] in 'ъьый':
-                    letter = city[-2]
-                update.message.reply_text(f'Вам на "{letter.upper()}""')
-                break
+    while True:
+ #       mybot.start_polling()
+ #       dp.add_handler(MessageHandler(Filters.text)) # Filters.text тип сообщения, 
+        print('you are here1')
+        if update.message.text in russian_cities:
+            your_city = update.message.text
+            print('you are here2')
+            russian_cities.remove(your_city)
+            for city in russian_cities:
+                if city[0].lower()==your_city[-1]:    
+                    update.message.reply_text(city)
+                    russian_cities.remove(city)
+                    letter = city[-1]
+                    if city[-1] in 'ъьый':
+                        letter = city[-2]
+                    update.message.reply_text(f'Вам на "{letter.upper()}""')
+                    
+        
     
-    mybot.start_polling()  # бот, начни запрашивать
-    mybot.idle()  # работать бесконечно, пока не остановят
+
 def main():
     mybot = Updater(key_bot, request_kwargs=PROXY)
     logging.info('Бот запускается')
